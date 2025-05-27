@@ -1,45 +1,45 @@
-# name: Build & Publish Release APK
+name: Build & Publish Release APK
 
-# on:
-#   pull_request:
-#     types:
-#       - opened
-#       - synchronize
-#       - reopened
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
 
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-#     steps:
-#     - name: Checkout code
-#       uses: actions/checkout@v3
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-#     - name: Set up Node.js
-#       uses: actions/setup-node@v3
-#       with:
-#         node-version: 18
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
 
-#     - name: Install dependencies
-#       run: npm install
+    - name: Install dependencies
+      run: npm install
 
-#     - name: Install EAS CLI
-#       run: npm install -g eas-cli
+    - name: Install EAS CLI
+      run: npm install -g eas-cli
 
-#     - name: Install Android SDK
-#       uses: android-actions/setup-android@v2
+    - name: Install Android SDK
+      uses: android-actions/setup-android@v2
 
-#     - name: Create local build of APK
-#       run: |
-#         eas build --platform android --profile release --local --output=app-release.apk --non-interactive
-#       env:
-#        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    - name: Create local build of APK
+      run: |
+        eas build --platform android --profile release --local --output=app-release.apk --non-interactive
+      env:
+       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-#     - name: Upload APK as GitHub Release asset
-#       uses: softprops/action-gh-release@v1
-#       with:
-#         name: Todo v${{ github.run_number }}
-#         tag_name: v${{ github.run_number }}
-#         files: app-release.apk
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.TOKEN }}
+    - name: Upload APK as GitHub Release asset
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Todo v${{ github.run_number }}
+        tag_name: v${{ github.run_number }}
+        files: app-release.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}

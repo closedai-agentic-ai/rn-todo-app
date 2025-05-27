@@ -8,21 +8,24 @@ jobs:
   diff:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout PR code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 
 
-      - name: Get pull request diff and save to file
+      - name: Generate PR diff
         run: |
-          echo "Getting diff from base branch..."
-          git diff origin/${{ github.event.pull_request.base.ref }}...HEAD > pr-changes.diff
-          
-          echo "Modified files:"
-          git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD
+          git diff origin/${{ github.event.pull_request.base.ref }}...HEAD > pr-diff.txt
+          echo "==== PR Diff ===="
+          cat pr-diff.txt
 
-      - name: Upload diff as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: pr-diff
-          path: pr-changes.diff
+      - name: Send diff to Lambda API
+        env:
+          LAMBDA_URL: ${{ secrets.LAMBDA_API_URL }}
+        run: |
+          echo "Sending diff to Lambda..."
+          curl -X POST "$LAMBDA_URL" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -Rs --arg pr_number "${{ github.event.pull_request.number }}" \
+                          --arg repo "${{ github.repository }}" \
+                          '{repository: $repo, pr_number: $pr_number, diff: .}' < pr-diff.txt)"
