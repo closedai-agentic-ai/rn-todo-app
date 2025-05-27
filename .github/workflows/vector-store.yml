@@ -34,9 +34,3 @@ jobs:
       - name: Create Vector Store
         run: |
           python create_vector_store.py
-
-      - name: Upload vector store as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: vector-store
-          path: ./chroma_db
