@@ -1,53 +1,49 @@
-# Zustand Example
+# Task Manager - React Native Todo App
 
-<p>
-  <!-- iOS -->
-  <img alt="Supports Expo iOS" longdesc="Supports Expo iOS" src="https://img.shields.io/badge/iOS-4630EB.svg?style=flat-square&logo=APPLE&labelColor=999999&logoColor=fff" />
-  <!-- Android -->
-  <img alt="Supports Expo Android" longdesc="Supports Expo Android" src="https://img.shields.io/badge/Android-4630EB.svg?style=flat-square&logo=ANDROID&labelColor=A4C639&logoColor=fff" />
-  <!-- Web -->
-  <img alt="Supports Expo Web" longdesc="Supports Expo Web" src="https://img.shields.io/badge/web-4630EB.svg?style=flat-square&logo=GOOGLE-CHROME&labelColor=4285F4&logoColor=fff" />
-</p>
+A beautiful, modern task management mobile application built with React Native and Expo, featuring a clean UI and smooth animations.
 
-Zustand is a fast state manager with a user-friendly API.
-This example implements a basic store and list using the `zustand` library.
+## 📱 Features
 
-## 🚀 How to use
+- ✅ Create, read, update, and delete tasks
+- ✅ Mark tasks as completed
+- ✅ Clear all tasks with a single button
+- ✅ Clean, modern UI with smooth animations
+- ✅ Optimized for iOS, Android, and Web
+- ✅ Efficient state management with Zustand
 
-- Install with `yarn` or `npm install`.
-- Run `yarn start` or `npm run start` to try it out.
+## 📖 How to Use
 
-## 📝 Notes
+1. **Add a new task**: Type your task in the input field at the top and press the "+" button or hit Enter.
+2. **Mark a task as completed**: Tap the checkbox next to the task.
+3. **Delete a task**: Tap the "×" button on the right side of the task.
+4. **Clear all tasks**: Tap the "Clear All" button at the bottom.
 
-- [Zustand docs](https://github.com/pmndrs/zustand)
+## 🧩 State Management with Zustand
 
-## 🔍 Vector Store Setup
+This project uses Zustand for state management, which offers several advantages:
 
-This repository includes a GitHub Action that creates a vector store of the codebase on every push to the `main` branch. The vector store allows for semantic search and retrieval of code snippets. We use AWS Bedrock for generating embeddings.
+- Minimal boilerplate compared to Redux
+- No reducers, actions, or dispatchers
+- Easy integration with React hooks
+- Built-in state persistence capabilities
+- Excellent TypeScript support
 
-### Setup Required
+The store setup is simple and intuitive:
 
-1. Add the following AWS Bedrock secrets to your GitHub repository:
+```javascript
+// src/store/index.js
+import create from "zustand";
 
-   - Go to your repository on GitHub
-   - Navigate to Settings > Secrets and variables > Actions
-   - Click "New repository secret" for each of these:
-
-     - Name: `AWS_ACCESS_KEY_ID`
-     - Value: Your AWS access key with Bedrock permissions
-
-     - Name: `AWS_SECRET_ACCESS_KEY`
-     - Value: Your AWS secret key
-
-     - Name: `AWS_REGION` (optional, defaults to us-east-1)
-     - Value: The AWS region where Bedrock is available (e.g., us-east-1, us-west-2)
-
-2. Ensure your AWS account has access to Amazon Bedrock and the specific model (default is "cohere.embed-english-v3"). You may need to request model access in the AWS Bedrock console.
-
-3. The workflow will run automatically on every push to the `main` branch, creating a vector store that is saved as a GitHub artifact.
-
-4. To download the vector store artifact:
-   - Go to the Actions tab in your repository
-   - Click on the latest workflow run
-   - Scroll down to the Artifacts section
-   - Download the "vector-store" artifact
+export const useStore = create((set, get) => ({
+  items: [],
+  addItem: (text) => {
+    /* implementation */
+  },
+  removeItem: (id) => {
+    /* implementation */
+  },
+  toggleItem: (id) => {
+    /* implementation */
+  },
+}));
+```

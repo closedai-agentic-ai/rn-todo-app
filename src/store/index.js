@@ -23,12 +23,12 @@ export const useStore = create((set, get) => {
     },
     removeItem(id) {
       const items = get().items;
-      set({ items: items.filter(item => item.id !== id) });
+      set({ items: items.filter((item) => item.id !== id) });
     },
     toggleItem(id) {
       const items = get().items;
       set({
-        items: items.map(item =>
+        items: items.map((item) =>
           item.id === id ? { ...item, completed: !item.completed } : item
         ),
       });
