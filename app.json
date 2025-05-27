@@ -5,6 +5,12 @@
         "projectId": "61a49b80-07c3-410c-b550-9055816827c2"
       }
     },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.qazi9amaan.rntodoapp"
+    },
     "owner": "qazi9amaan"
   }
 }
