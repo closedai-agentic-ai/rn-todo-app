@@ -12,15 +12,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create context from the repo
+      - name: Create context via lambda
         env:
           LAMBDA_URL: ${{ secrets.KB_LAMBDA_API_URL }}
           REPO_URL: https://github.com/${{ github.repository }}
         run: |
           echo "Sending repo url to Lambda..."
+          echo "Repo URL: $REPO_URL"
+
+          jq_payload=$(jq -n --arg github_url "$REPO_URL" '{github_url: $github_url, upload_to_s3: true}')
+
+          echo "Payload: $jq_payload"
 
           curl -X POST "$LAMBDA_URL" \
             -H "Content-Type: application/json" \
-            -d "$(jq -n \
-                    --arg github_url "$REPO_URL" \
-                    '{github_url: $github_url, upload_to_s3: true}')"
+            -d "$jq_payload"
+
