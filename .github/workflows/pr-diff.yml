@@ -1,0 +1,28 @@
+name: Save PR Diff
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 
+
+      - name: Get pull request diff and save to file
+        run: |
+          echo "Getting diff from base branch..."
+          git diff origin/${{ github.event.pull_request.base.ref }}...HEAD > pr-changes.diff
+          
+          echo "Modified files:"
+          git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD
+
+      - name: Upload diff as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: pr-diff
+          path: pr-changes.diff
