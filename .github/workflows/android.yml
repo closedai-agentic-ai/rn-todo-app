@@ -4,23 +4,36 @@ on:
   pull_request:
 
 jobs:
-  Gradle:
+  build:
     runs-on: ubuntu-latest
-    steps:
-    - name: checkout code
-      uses: actions/checkout@v2
-    - name: setup jdk
-      uses: actions/setup-java@v1
-      with:
-        java-version: 11
-    - name: Make Gradle executable
-      run: chmod +x ./gradlew
-    - name: Build Release APK
-      run: ./gradlew assembleRelease
-    - name: Releasing using Hub
-      uses: kyze8439690/action-release-releaseapk@master
-      env:
-       GITHUB_TOKEN: ${{ secrets.TOKEN }}
-       APP_FOLDER: app
-       RELEASE_TITLE: New Build
 
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Install EAS CLI
+      run: npm install -g eas-cli
+
+    - name: Install Android SDK
+      uses: android-actions/setup-android@v2
+
+    - name: Create local build of APK
+      run: |
+        eas build --platform android --local --output=app-release.apk --non-interactive
+
+    - name: Upload APK as GitHub Release asset
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Release APK
+        tag_name: v${{ github.run_number }}
+        files: app-release.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
