@@ -9,7 +9,29 @@ export const useStore = create((set, get) => {
     items: [],
     addItem(text) {
       const items = get().items;
-      set({ items: [...items, { text, id: Math.random() }] });
+      set({
+        items: [
+          ...items,
+          {
+            text,
+            id: Math.random(),
+            completed: false,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+      });
+    },
+    removeItem(id) {
+      const items = get().items;
+      set({ items: items.filter(item => item.id !== id) });
+    },
+    toggleItem(id) {
+      const items = get().items;
+      set({
+        items: items.map(item =>
+          item.id === id ? { ...item, completed: !item.completed } : item
+        ),
+      });
     },
   });
 });
