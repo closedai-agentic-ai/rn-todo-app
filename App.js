@@ -17,7 +17,7 @@ export default function App() {
       <TodoList />
       <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
         <Button
-          onPress={() => addItem(`Item #${items.length}`)}
+          onPress={() => addItem(`Itema #${items.length}`)}
           title="Add Item"
         />
         <Button onPress={() => useReset()} title="reset" />
