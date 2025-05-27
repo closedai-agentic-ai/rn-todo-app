@@ -2,9 +2,8 @@ name: Generate Complete Repo Context
 
 on:
   push:
-    branches: [main, malik]
-  workflow_dispatch:
-
+    branches: [main]
+    
 jobs:
   context:
     runs-on: ubuntu-latest
