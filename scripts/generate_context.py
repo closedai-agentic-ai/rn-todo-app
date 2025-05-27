@@ -96,11 +96,17 @@ def summarize_md_file(path):
         }
 
 def copy_markdown_file(path):
-    dest_dir = Path("output")
+    dest_dir = Path("output/markdown")
     dest_dir.mkdir(parents=True, exist_ok=True)
 
-    relative_path = Path(path).relative_to(Path.cwd())
-    safe_name = "__".join(relative_path.parts)
+    try:
+        relative_path = Path(path).resolve().relative_to(Path.cwd())
+    except ValueError:
+        # Fall back to using the file name only
+        relative_path = Path(path).name
+
+    # Flatten into safe filename
+    safe_name = "__".join(relative_path.parts) if isinstance(relative_path, Path) else relative_path
     destination = dest_dir / safe_name
 
     shutil.copy(path, destination)
