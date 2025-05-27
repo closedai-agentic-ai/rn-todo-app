@@ -38,9 +38,9 @@ const HomeScreen = () => {
 
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>yessssjdhgfsjdgfjsgfjgsjdfg</Text>
+        <Text style={styles.headerTitle}>asdhakdhskjhadsk</Text>
         <Text style={styles.headerSubtitle}>
-          {completedCount} of {totalCount} completed
+          {completedCount} of {totalCount+1} completed
         </Text>
       </View>
 
