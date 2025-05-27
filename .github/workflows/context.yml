@@ -2,7 +2,7 @@ name: Generate Complete Repo Context
 
 on:
   push:
-    branches: [knowledge]
+    branches: [main,malik]
   workflow_dispatch:
 
 jobs:
