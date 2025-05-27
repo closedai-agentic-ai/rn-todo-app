@@ -26,13 +26,11 @@ jobs:
         run: |
           mkdir -p output
           python scripts/generate_context.py
-
-      - uses: shallwefootball/s3-upload-action@master
-        name: Upload S3
+      
+      - uses: prewk/s3-cp-action@v2
         with:
-          aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
-          aws_bucket: hackathon-knowledge-base-v2
-          source_dir: 'output'
-          destination_dir: ${{ github.event.repository.name }}/
-
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-west-2
+          dest: 's3://hackathon-knowledge-base-v2/${{ github.event.repository.name }}/'
+          source: 'output'
