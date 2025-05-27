@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "TodoApp",
-    "slug": "todoapp",
+    "slug": "rn-todo-app",
     "extra": {
       "eas": {
         "projectId": "61a49b80-07c3-410c-b550-9055816827c2"
