@@ -38,7 +38,7 @@ const HomeScreen = () => {
 
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Tasks</Text>
+        <Text style={styles.headerTitle}>yessssjdhgfsjdgfjsgfjgsjdfg</Text>
         <Text style={styles.headerSubtitle}>
           {completedCount} of {totalCount} completed
         </Text>

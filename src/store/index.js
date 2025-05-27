@@ -11,13 +11,14 @@ export const useStore = create((set, get) => {
       const items = get().items;
       set({
         items: [
-          ...items,
           {
             text,
             id: Math.random(),
             completed: false,
             createdAt: new Date().toISOString(),
           },
+          ...items,
+          
         ],
       });
     },
