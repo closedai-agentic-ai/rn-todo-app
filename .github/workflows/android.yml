@@ -25,6 +25,9 @@ jobs:
     - name: Install Android SDK
       uses: android-actions/setup-android@v2
 
+    - name: Authenticate with Expo
+      run: eas login --token ${{ secrets.EXPO_TOKEN }}
+
     - name: Create local build of APK
       run: |
         eas build --platform android --local --output=app-release.apk --non-interactive
