@@ -13,13 +13,11 @@ jobs:
         with:
           fetch-depth: 0 
 
-      - name: Get pull request diff and save to file
+      - name: Generate PR diff
         run: |
-          echo "Getting diff from base branch..."
-          git diff origin/${{ github.event.pull_request.base.ref }}...HEAD > pr-changes.diff
-          
-          echo "Modified files:"
-          git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD
+          git diff origin/${{ github.event.pull_request.base.ref }}...HEAD > pr-diff.txt
+          echo "==== PR Diff ===="
+          cat pr-diff.txt
       
       # - name: Upload diff as artifact
       #   uses: actions/upload-artifact@v4
