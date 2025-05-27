@@ -1,4 +1,4 @@
-name: Generate Complete Repo Context
+name: Generate Repo Context
 
 on:
   push:
