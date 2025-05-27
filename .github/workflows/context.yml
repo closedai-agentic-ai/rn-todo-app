@@ -32,9 +32,9 @@ jobs:
         with:
           args: --acl public-read --delete
         env:
-          AWS_S3_BUCKET: hackathon-knowledge-base-v2
+          AWS_S3_BUCKET: g24x7.artifact
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           SOURCE_DIR: output
-          DEST_DIR: ${{ github.event.repository.name }}/
+          DEST_DIR: hackaton/${{ github.event.repository.name }}/
