@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import shutil
 from pathlib import Path
 
 repo_context = {
@@ -85,7 +86,7 @@ def summarize_md_file(path):
                 "has_links": has_links,
                 "has_tables": has_table
             },
-            "tags": ["documentation", "markdown"] + (["docs"] if "readme" in path.lower() else [])
+            "tags": ["documentation", "markdown"] + (["docs"] if "readme" in str(path).lower() else [])
         }
 
     except Exception as e:
@@ -93,6 +94,16 @@ def summarize_md_file(path):
             "path": str(Path(path).relative_to(Path.cwd())),
             "error": str(e)
         }
+
+def copy_markdown_file(path):
+    dest_dir = Path("output")
+    dest_dir.mkdir(parents=True, exist_ok=True)
+
+    relative_path = Path(path).relative_to(Path.cwd())
+    safe_name = "__".join(relative_path.parts)
+    destination = dest_dir / safe_name
+
+    shutil.copy(path, destination)
 
 def build_structure(path, mmd_lines, depth=0, parent=None):
     structure = {}
@@ -119,6 +130,7 @@ def build_structure(path, mmd_lines, depth=0, parent=None):
                 repo_context["files"].append(summarize_js_file(full_path))
             elif item.endswith('.md'):
                 repo_context["files"].append(summarize_md_file(full_path))
+                copy_markdown_file(full_path)
 
     return structure
 
@@ -147,8 +159,11 @@ def write_markdown_summary():
     for dep in sorted(repo_context["dependencies"]):
         lines.append(f"- {dep}")
 
-    with open("output/repo_summary.md", "w", encoding="utf-8") as f:
+    summary_path = "output/repo_summary.md"
+    with open(summary_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
+
+    copy_markdown_file(summary_path)
 
 def main():
     os.makedirs("output", exist_ok=True)
@@ -161,7 +176,7 @@ def main():
 
     write_mermaid(mmd_lines)
     write_markdown_summary()
-    print("✅ Repo context, Mermaid diagram, and Markdown summary written to /output")
+    print("✅ Repo context, Mermaid diagram, Markdown summary, and all .md files saved to /output")
 
 if __name__ == "__main__":
     main()
