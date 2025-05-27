@@ -9,6 +9,7 @@ repo_context = {
     "dependencies": set()
 }
 
+# Regexes for JS/TS
 IMPORT_RE = re.compile(r'^\s*(?:import|require)\s+(?:.*?from\s+)?[\'"](.*?)[\'"];?', re.MULTILINE)
 FUNCTION_RE = re.compile(r'\bfunction\s+(\w+)\s*\(|const\s+(\w+)\s*=\s*\(?.*?\)?\s*=>')
 EXPORT_RE = re.compile(r'\bexport\s+(default\s+)?(function|const|class)\s+(\w+)', re.MULTILINE)
@@ -24,6 +25,9 @@ def classify_js_file(content):
     if "axios" in content or "fetch(" in content:
         return "API handler"
     return "Utility or logic"
+
+def sanitize_node_name(name, depth):
+    return name.replace('.', '_').replace('-', '_') + f"_{depth}"
 
 def summarize_js_file(path):
     try:
@@ -97,26 +101,33 @@ def build_structure(path, mmd_lines, depth=0, parent=None):
             continue
 
         full_path = os.path.join(path, item)
-        current = f"{item.replace('.', '_')}_{depth}"
-
-        if parent:
-            mmd_lines.append(f"{parent} --> {current}")
+        node_id = sanitize_node_name(item, depth)
+        label = item
 
         if os.path.isdir(full_path):
-            structure[item] = build_structure(full_path, mmd_lines, depth + 1, current)
+            mmd_lines.append(f'{node_id}["📁 {label}"]')
+            if parent:
+                mmd_lines.append(f"{parent} --> {node_id}")
+            structure[item] = build_structure(full_path, mmd_lines, depth + 1, node_id)
         else:
+            mmd_lines.append(f'{node_id}["📄 {label}"]')
+            if parent:
+                mmd_lines.append(f"{parent} --> {node_id}")
             structure[item] = None
+
             if item.endswith(('.js', '.ts', '.tsx')):
                 repo_context["files"].append(summarize_js_file(full_path))
             elif item.endswith('.md'):
                 repo_context["files"].append(summarize_md_file(full_path))
+
     return structure
 
 def write_mermaid(mmd_lines):
-    header = ["```mermaid", "graph TD"]
-    footer = ["```"]
     with open("output/repo_structure.mmd", "w", encoding="utf-8") as f:
-        f.write("\n".join(header + mmd_lines + footer))
+        f.write("```mermaid\n")
+        f.write("graph TD\n")
+        f.write("\n".join(mmd_lines))
+        f.write("\n```")
 
 def write_markdown_summary():
     lines = ["# 📄 Repo Summary", ""]
@@ -150,7 +161,7 @@ def main():
 
     write_mermaid(mmd_lines)
     write_markdown_summary()
-    print("✅ Full repo context, diagram, and summary written to /output")
+    print("✅ Repo context, Mermaid diagram, and Markdown summary written to /output")
 
 if __name__ == "__main__":
     main()
