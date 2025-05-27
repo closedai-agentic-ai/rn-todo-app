@@ -31,10 +31,9 @@ jobs:
 
     - name: Create local build of APK
       run: |
-        eas build --platform android --local --output=app-release.apk --non-interactive
+        eas build --platform android --profile release --local --output=app-release.apk --non-interactive
       env:
        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
 
     - name: Upload APK as GitHub Release asset
       uses: softprops/action-gh-release@v1
