@@ -28,12 +28,13 @@ jobs:
       - name: Send diff to Lambda API
         env:
           LAMBDA_URL: ${{ secrets.LAMBDA_API_URL }}
+          FORWARD_API_URL: 'https://1dcf-14-142-183-182.ngrok-free.app/api/test/execute'
         run: |
           echo "Reading diff into variable..."
           diff_content=$(< pr-diff.txt)
 
           echo "Building JSON payload and sending to Lambda..."
-          jq -n \
+          payload=$(jq -n \
             --arg pr_number "${{ github.event.pull_request.number }}" \
             --arg repo "${{ github.repository }}" \
             --arg pr_description "${{ github.event.pull_request.body }}" \
@@ -49,6 +50,17 @@ jobs:
               commitSha: $commitSha,
               branch: $branch,
               diff: $diff
-            }' | curl -X POST "$LAMBDA_URL" \
-                      -H "Content-Type: application/json" \
-                      -d @-
+            }')
+          
+          echo "Sending to Lambda and capturing response..."
+          lambda_response=$(curl -s -X POST "$LAMBDA_URL" \
+                                -H "Content-Type: application/json" \
+                                -d "$payload")
+
+          echo "Forwarding Lambda response to secondary API..."
+          curl -X POST "$FORWARD_API_URL" \
+              -H "Content-Type: application/json" \
+              -d "$lambda_response"
+
+
+                        
