@@ -11,7 +11,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 
+          fetch-depth: 0
 
       - name: Generate PR diff
         run: |
@@ -26,6 +26,11 @@ jobs:
           echo "Sending diff to Lambda..."
           curl -X POST "$LAMBDA_URL" \
             -H "Content-Type: application/json" \
-            -d "$(jq -Rs --arg pr_number "${{ github.event.pull_request.number }}" \
-                          --arg repo "${{ github.repository }}" \
-                          '{repository: $repo, pr_number: $pr_number, diff: .}' < pr-diff.txt)"
+            -d "$(jq -Rs \
+                          --arg pr_number \"${{ github.event.pull_request.number }}\" \
+                          --arg repo \"${{ github.repository }}\" \
+                          --arg pr_description \"${{ github.event.pull_request.body }}\" \
+                          --arg commitSha \"${{ github.sha }}\" \
+                          --arg repositoryUrl \"https://github.com/${{ github.repository }}\" \
+                          --arg branch \"${{ github.head_ref }}\" \
+                          '{repository: $repo, repositoryUrl: $repositoryUrl, pr_number: $pr_number, pr_description: $pr_description, commitSha: $commitSha, branch: $branch, diff: .}' < pr-diff.txt)"
