@@ -23,17 +23,17 @@ jobs:
           git fetch origin ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}
           git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} > pr-diff.txt
           echo "==== PR Diff ===="
-          head -n 50 pr-diff.txt # Show just part of it to prevent log flooding
+          cat pr-diff.txt
 
       - name: Send diff to Lambda API
         env:
           LAMBDA_URL: ${{ secrets.LAMBDA_API_URL }}
         run: |
           echo "Reading diff into variable..."
-          diff_content=$(cat pr-diff.txt | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
+          diff_content=$(< pr-diff.txt)
 
-          echo "Sending to Lambda..."
-          payload=$(jq -n \
+          echo "Building JSON payload and sending to Lambda..."
+          jq -n \
             --arg pr_number "${{ github.event.pull_request.number }}" \
             --arg repo "${{ github.repository }}" \
             --arg pr_description "${{ github.event.pull_request.body }}" \
@@ -49,8 +49,6 @@ jobs:
               commitSha: $commitSha,
               branch: $branch,
               diff: $diff
-            }')
-
-          echo "$payload" | curl -s -X POST "$LAMBDA_URL" \
-            -H "Content-Type: application/json" \
-            -d @-
+            }' | curl -X POST "$LAMBDA_URL" \
+                      -H "Content-Type: application/json" \
+                      -d @-
