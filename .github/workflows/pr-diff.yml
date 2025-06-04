@@ -35,10 +35,10 @@ jobs:
         id: upload-pr-diff
         with:
           name: PR Diff v${{ github.event.pull_request.number }}
-          tag_name: v${{ github.event.pull_request.number }}
+          tag_name: diff${{ github.event.pull_request.number }}
           files: pr-diff.txt
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
       - name: invoke lamda via aws cli
         run: |
