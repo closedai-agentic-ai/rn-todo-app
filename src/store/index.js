@@ -23,19 +23,27 @@ export const useStore = create((set, get) => {
     },
     removeItem(id) {
       const items = get().items;
-      set({ items: items.filter((item) => item.id !== id) });
+      set({ items: items.filter(item => item.id !== id) });
     },
     toggleItem(id) {
       const items = get().items;
       set({
-        items: items.map((item) =>
+        items: items.map(item =>
           item.id === id ? { ...item, completed: !item.completed } : item
         ),
       });
+    },
+    clearItems({ onlyCompleted = false } = {}) {
+      const items = get().items;
+      if (onlyCompleted) {
+        set({ items: items.filter(item => !item.completed) });
+      } else {
+        set({ items: [] });
+      }
     },
   });
 });
 
 export function useReset() {
-  useStore.setState(initialState);
+  useStore.getState().clearItems();
 }

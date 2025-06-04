@@ -29,7 +29,7 @@ const HomeScreen = () => {
     }
   };
 
-  const completedCount = items.filter((item) => item.completed).length;
+  const completedCount = items.filter(item => item.completed).length;
   const totalCount = items.length;
 
   return (
@@ -60,11 +60,28 @@ const HomeScreen = () => {
       </View>
 
       {/* Todo List */}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}>
+        <Text style={{ flex: 1 }}></Text>
+        <TouchableOpacity
+          style={[styles.resetButton, { marginBottom: 8 }]}
+          onPress={() =>
+            useStore.getState().clearItems({ onlyCompleted: true })
+          }>
+          <Text style={styles.resetButtonText}>Clear Completed</Text>
+        </TouchableOpacity>
+      </View>
       <TodoList />
 
       {/* Bottom Actions */}
       <View style={styles.bottomActions}>
-        <TouchableOpacity style={styles.resetButton} onPress={() => useReset()}>
+        <TouchableOpacity
+          style={styles.resetButton}
+          onPress={() => useStore.getState().clearItems()}>
           <Text style={styles.resetButtonText}>Clear All</Text>
         </TouchableOpacity>
       </View>
