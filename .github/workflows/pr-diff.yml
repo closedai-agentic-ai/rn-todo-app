@@ -7,45 +7,49 @@ on:
 jobs:
   diff:
     runs-on: ubuntu-latest
+    env:
+      s3_key: ${{ github.repository }}/${{ github.event.pull_request.number }}/payload.json
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4.2.1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{secrets.AWS_REGION}}
+          aws-region: ${{ secrets.AWS_REGION }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          fetch-depth: 0
 
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
-      - name: Generate PR diff
+      - name: Generate PR diff and payload file
         run: |
-          echo "Fetching base and head SHAs..."
           git fetch origin ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}
           git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} > pr-diff.txt
           echo "==== PR Diff ===="
           cat pr-diff.txt
 
-      - name: Upload PR diff as GitHub Release asset
-        uses: softprops/action-gh-release@v1
-        id: upload-pr-diff
-        with:
-          name: PR Diff v${{ github.event.pull_request.number }}
-          tag_name: v${{ github.event.pull_request.number }}
-          files: pr-diff.txt
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          payload_file="payload.json"
+          cat <<EOF > $payload_file
+          {
+            "repositoryUrl": "https://github.com/${{ github.repository }}",
+            "repository": "${{ github.repository }}",
+            "pr_number": "${{ github.event.pull_request.number }}",
+            "pr_description": "${{ github.event.pull_request.body }}",
+            "commitSha": "${{ github.sha }}",
+            "branch": "${{ github.head_ref }}",
+            "diff": $(jq -Rs . < pr-diff.txt)
+          }
+          EOF
 
-      - name: invoke lamda via aws cli
+
+      - name: Upload payload to S3
         run: |
-          diff_url= ${{ steps.upload-pr-diff.outputs.diff_url }}
-          echo "Diff URL: $diff_url"
+          aws s3 cp payload.json s3://closedaioutput/$s3_key
+
+      - name: Invoke Lambda with S3 URL
+        run: |
           aws lambda invoke \
-          --function-name create-test-scope \
-          --cli-binary-format raw-in-base64-out \
-          --payload "{\"repositoryUrl\":\"https://github.com/${{ github.repository }}\",\"repository\":\"${{ github.repository }}\",\"pr_number\":\"${{ github.event.pull_request.number }}\",\"pr_description\":\"${{ github.event.pull_request.body }}\",\"commitSha\":\"${{ github.sha }}\",\"branch\":\"${{ github.head_ref }}\",\"diff\":\"$diff_url\"}" \
-          response.json
+            --function-name create-test-scope \
+            --cli-binary-format raw-in-base64-out \
+            --payload "{\"path\": \"$s3_key\"}" \
+            response.json
