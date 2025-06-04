@@ -17,6 +17,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{secrets.AWS_REGION}}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          fetch-depth: 0
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Generate PR diff
         run: |
@@ -26,11 +30,22 @@ jobs:
           echo "==== PR Diff ===="
           cat pr-diff.txt
 
+      - name: Upload PR diff as GitHub Release asset
+        uses: softprops/action-gh-release@v1
+        id: upload-pr-diff
+        with:
+          name: PR Diff v${{ github.event.pull_request.number }}
+          tag_name: v${{ github.event.pull_request.number }}
+          files: pr-diff.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: invoke lamda via aws cli
         run: |
-          diff_content=$(< pr-diff.txt)
+          diff_url= ${{ steps.upload-pr-diff.outputs.diff_url }}
+          echo "Diff URL: $diff_url"
           aws lambda invoke \
           --function-name create-test-scope \
           --cli-binary-format raw-in-base64-out \
-          --payload "{\"repositoryUrl\":\"https://github.com/${{ github.repository }}\",\"repository\":\"${{ github.repository }}\",\"pr_number\":\"${{ github.event.pull_request.number }}\",\"pr_description\":\"${{ github.event.pull_request.body }}\",\"commitSha\":\"${{ github.sha }}\",\"branch\":\"${{ github.head_ref }}\",\"diff\":\"$diff_content\"}" \
+          --payload "{\"repositoryUrl\":\"https://github.com/${{ github.repository }}\",\"repository\":\"${{ github.repository }}\",\"pr_number\":\"${{ github.event.pull_request.number }}\",\"pr_description\":\"${{ github.event.pull_request.body }}\",\"commitSha\":\"${{ github.sha }}\",\"branch\":\"${{ github.head_ref }}\",\"diff\":\"$diff_url\"}" \
           response.json
