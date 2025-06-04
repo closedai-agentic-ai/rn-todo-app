@@ -21,6 +21,7 @@ jobs:
       - name: invoke lamda via aws cli
         run: |
           aws lambda invoke \
-            --function-name create-test-scope \
-            --payload '{"github_url": "https://github.com/${{ github.repository }}", "upload_to_s3": true}' \
-            response.json
+          --function-name create-test-scope \
+          --cli-binary-format raw-in-base64-out \
+          --payload '{"github_url":"https://github.com/closedai-agentic-ai/rn-todo-app","upload_to_s3":true}' \
+          response.json
