@@ -14,11 +14,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
- # call an api
-    - name: Trigger MCP
-      run: |
-        curl -X POST -H "Content-Type: application/json" -d '${{ secrets.S3_TEST_CONTENT }}' https://e802-122-185-233-118.ngrok-free.app/api/test/execute
     
     - name: Set up Node.js
       uses: actions/setup-node@v3
